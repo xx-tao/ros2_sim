@@ -61,7 +61,7 @@
       <self_collide>true</self_collide>
       <pose>0 0 0 0 0 0</pose>
       <include merge="true">
-        <uri>package://robot_sim2/models/vehicle</uri>
+        <uri>package://ros2_sim/models/vehicle</uri>
       </include>
 
       <plugin

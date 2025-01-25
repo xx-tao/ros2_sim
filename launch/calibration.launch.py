@@ -21,31 +21,64 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 import xacro
 
+from launch.substitutions import (
+    Command,
+    FindExecutable,
+    LaunchConfiguration,
+    PathJoinSubstitution,
+)
+
+from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
 
     # Package Directories
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
-    robot_sim2 = get_package_share_directory('robot_sim2')
+    ros2_sim = get_package_share_directory('ros2_sim')
 
     # Parse robot description from xacro
-    robot_description_file = os.path.join(robot_sim2, 'urdf', 'yixiuge_d435i_gazebo.xacro')
-    robot_description_config = xacro.process_file(
-        robot_description_file
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [
+                    FindPackageShare("ros2_sim"),
+                    "urdf",
+                    "example_d415_gazebo.urdf.xacro",
+                ]
+            ),
+            " ",
+            "camera_name:=gz_camera",
+            " ",
+        ]
     )
 
-    small_checkerboard_file = os.path.join(robot_sim2, 'urdf', 'small_checkerboard.sdf')
+    robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="both",
+        parameters=[
+            {
+                "use_sim_time": True,
+                "robot_description": robot_description_content,
+            }
+        ],
+    )
+    small_checkerboard_file = os.path.join(ros2_sim, 'urdf', 'small_checkerboard.sdf')
 
-    world_file = os.path.join(robot_sim2, 'worlds', 'gravity_free.sdf')
-    robot_description = {'robot_description': robot_description_config.toxml()}
+    world_file = os.path.join(ros2_sim, 'worlds', 'gravity_free.sdf')
 
-    # Robot state publisher
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        output='both',
-        parameters=[robot_description],
+    robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="both",
+        parameters=[
+            {
+                "use_sim_time": True,
+                "robot_description": robot_description_content,
+            }
+        ],
     )
 
     joint_state_publisher = Node(
@@ -67,16 +100,34 @@ def generate_launch_description():
     rviz = Node(
         package='rviz2',
         executable='rviz2',
-        arguments=['-d', os.path.join(robot_sim2, 'rviz', 'joint_states.rviz')],
+        arguments=['-d', os.path.join(ros2_sim, 'rviz', 'joint_states.rviz')],
     )
 
     # Spawn
     spawn = Node(
-        package='ros_gz_sim',
-        executable='create',
-        parameters=[{'name': 'rrbot',
-                    'topic': 'robot_description'}],
-        output='screen',
+        package="ros_gz_sim",
+        executable="create",
+        output="screen",
+        arguments=[
+            "-string",
+            robot_description_content,
+            "-name",
+            "realsense_camera",
+            "-allow_renaming",
+            "true",
+            "-x",
+            "0.0",
+            "-y",
+            "0.0",
+            "-z",
+            "0.0",
+            "-R",
+            "0.0",
+            "-P",
+            "0.0",
+            "-Y",
+            "0.0",
+        ],
     )
 
     spawn_2 = Node(
@@ -88,19 +139,40 @@ def generate_launch_description():
     )
 
     # Gz - ROS Bridge
-    bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
+    gazebo_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        parameters=[{"use_sim_time": True}],
         arguments=[
-            # Clock (IGN -> ROS2)
-            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            # Joint states (IGN -> ROS2)
-            '/world/empty/model/rrbot/joint_state@sensor_msgs/msg/JointState[gz.msgs.Model',
+            "/camera/image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
+            "/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+            "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
         ],
         remappings=[
-            ('/world/empty/model/rrbot/joint_state', 'joint_states'),
+            (
+                "/camera/image",
+                "/camera/camera/color/image_raw",
+            ),
+            (
+                "/camera/depth_image",
+                "/camera/camera/depth_registered/image_rect",
+            ),
+            (
+                "/camera/points",
+                "/camera/camera/depth/color/points",
+            ),
+            (
+                "/camera/camera_info",
+                "/camera/camera/color/camera_info",
+            ),
+            (
+                "/camera/camera_info",
+                "/camera/camera/depth_registered/camera_info",
+            ),
         ],
-        output='screen'
+        output="screen",
     )
 
     return LaunchDescription(
@@ -109,8 +181,8 @@ def generate_launch_description():
             gazebo,
             spawn,
             spawn_2,
-            bridge,
-            robot_state_publisher,
+            gazebo_bridge,
+            robot_state_publisher_node,
             # rviz,
             joint_state_publisher,
         ]

@@ -128,7 +128,7 @@
         </gz-gui>
       </plugin>
 
-      <plugin filename="ImageDisplay" name="Image Display 3">
+      <plugin filename="ImageDisplay" name="Image Display 1">
         <gz-gui>
           <title>RGBD: image</title>
           <property key="state" type="string">floating</property>
@@ -136,10 +136,10 @@
           <property type="double" key="height">315</property>
           <property type="double" key="y">320</property>
         </gz-gui>
-        <topic>rgbd_camera/image</topic>
+        <topic>camera/image</topic>
         <topic_picker>false</topic_picker>
       </plugin>
-      <plugin filename="ImageDisplay" name="Image Display 3">
+      <plugin filename="ImageDisplay" name="Image Display 2">
         <gz-gui>
           <title>RGBD: depth</title>
           <property key="state" type="string">floating</property>
@@ -148,11 +148,11 @@
           <property type="double" key="x">500</property>
           <property type="double" key="y">320</property>
         </gz-gui>
-        <topic>rgbd_camera/depth_image</topic>
+        <topic>camera/depth_image</topic>
         <topic_picker>false</topic_picker>
       </plugin>
     </gui>
-    
+
     <light name="sun" type="directional">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
@@ -193,10 +193,5 @@
         </visual>
       </link>
     </model>
-
-    <physics type="ode">
-    <gravity>0 0 0</gravity>
-      <real_time_update_rate>1000.0</real_time_update_rate>
-    </physics>
   </world>
 </sdf>

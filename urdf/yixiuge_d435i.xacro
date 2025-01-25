@@ -57,7 +57,7 @@
 				<origin xyz="0 0 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
 				<geometry>
 					<!-- <box size="0.01 0.01 0.01"/> -->
-					<mesh filename="package://robot_sim2/urdf/meshes/d435i.dae" />
+					<mesh filename="package://ros2_sim/urdf/meshes/d435i.dae" />
 				</geometry>
 			</collision>
 			<visual>
@@ -68,7 +68,7 @@
 					<!-- <mesh filename="package://kinect_v2/meshes/kinect2.STL" /> -->
 					<!-- <mesh filename="package://robot_sim_demo/models/meshes/xtion_pro_camera.dae" /> -->
 					<!-- <mesh filename="package://robot_sim_demo/models/meshes/kinect.dae" /> -->
-					<mesh filename="package://robot_sim2/urdf/meshes/d435i.dae" />
+					<mesh filename="package://ros2_sim/urdf/meshes/d435i.dae" />
 				</geometry>
 				<material name="">
 					<color rgba="0.0 0.0 0.5 1" />

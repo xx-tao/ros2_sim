@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(robot_sim2)
+project(ros2_sim)
 
 find_package(ament_cmake REQUIRED)
 

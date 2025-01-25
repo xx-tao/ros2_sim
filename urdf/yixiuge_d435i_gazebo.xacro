@@ -3,7 +3,7 @@
   <xacro:property name="M_PI" value="3.141592653589793"/>
   <link name="world" />
 
-  <xacro:include filename="$(find robot_sim2)/urdf/yixiuge_d435i.xacro" />
+  <xacro:include filename="$(find ros2_sim)/urdf/yixiuge_d435i.xacro" />
   <xacro:yixiuge_d435i />
 
   <joint name="yixiuge_d435i_base_joint" type="fixed">
